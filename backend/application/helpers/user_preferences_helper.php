@@ -3,7 +3,6 @@
 function get_filters($ci): array {
 	$data = [];
 	$ci->load->model('ingredients_model');
-	$data['ingredients'] = $ci->ingredients_model->get_all_ingredients();
 	$data['applied_filters'] = get_user_applied_filters($ci);
 	return $data;
 }

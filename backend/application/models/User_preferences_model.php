@@ -8,7 +8,7 @@ class user_preferences_model extends CI_Model {
 	}
 
 	public function get_user_preferences($user_id) {
-		$this->db->select('c.name as meat, sc.type, u.carbs, u.proteins, u.fats, u.cooking_time, u.cuisine, u.spice_tolerance, u.cooking_style');
+		$this->db->select('c.name as meat, c.id as category_id, sc.id as sub_category_id, sc.type, u.carbs, u.proteins, u.fats, u.cooking_time, u.cuisine, u.spice_tolerance, u.cooking_style');
 		$this->db->from('user_preference u');
 		$this->db->join('categories c', 'c.id = u.category_id', 'left');
 		$this->db->join('sub_categories sc', 'sc.id = u.subcategory_id', 'left');

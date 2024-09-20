@@ -13,8 +13,8 @@ class User_preferences extends MY_Controller {
 	public function apply_filters_and_get_recipes(): void {
 		$this->load->helper('user_preferences');
 		$this->load->helper('recipes');
-//		$data['applied_filters'] = apply_filters($this);
-		$data = fetch_recipes($this);
+		$data['applied_filters'] = apply_filters($this);
+		$data['recipes'] = fetch_recipes($this);
 		header('Content-Type: application/json; charset=utf-8');
 		echo json_encode($data);
 	}

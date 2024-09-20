@@ -467,3 +467,23 @@ ALTER TABLE `user_dietary_restrictions`
 ALTER TABLE `user_preference`
   ADD CONSTRAINT `user_preference_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 COMMIT;
+
+CREATE TABLE `recipe_ratings` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `recipe` int NOT NULL,
+  `rating` int NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `recipe` (`recipe`),
+  CONSTRAINT `recipe_ratings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `recipe_ratings_ibfk_2` FOREIGN KEY (`recipe`) REFERENCES `recipes` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+);
+
+ALTER TABLE `stock` ADD `is_available` TINYINT NOT NULL DEFAULT '1' AFTER `sub_category_id`;
+ALTER TABLE `recipes` ADD `category_id` INT NULL AFTER `id`;
+ALTER TABLE `recipes` ADD `sub_category_id` INT NULL AFTER `category_id`;
+ALTER TABLE `recipes` ADD `cooking_time` INT NULL DEFAULT NULL AFTER `cooking_style`;
+ALTER TABLE `recipes` ADD `location` VARCHAR(100) NULL AFTER `cooking_time`;
