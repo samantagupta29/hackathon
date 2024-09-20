@@ -9,24 +9,28 @@ function fetch_recipes($ci) {
 	$user_preference = $ci->user_preferences_model->get_user_preferences($ci->user_id);
 	$dietary_restrictions = $ci->user_dietary_restrictions_model->get_user_dietary_restrictions($ci->user_id);
 	$post_data = restructure_data($ci, $user_preference, $dietary_restrictions);
-	return process_response($ci, $user_preference, $post_data, get_response($post_data));
+	$response_from_db = fetch_from_db($ci, $user_preference, $dietary_restrictions);
+	$response_from_ai = [];
+	if (count($response_from_db) < 10) {
+		$post_data['count_of_recipes_to_fetch'] = 10 - count($response_from_db);
+		$response_from_ai = get_response($post_data);
+	}
+	$recipes['results'] = array_merge($response_from_db, $response_from_ai['results']);
+	return process_response($ci, $user_preference, $post_data, $recipes);
+
 }
 
 function fetch_recipe($ci, $recipe_id) {
 	$ci->load->model('recipe_model');
     return $ci->recipe_model->get_recipe($recipe_id);
 }
-function fetch_from_db($post_data) {
-
+function fetch_from_db($ci, $user_preference, $dietary_restrictions) {
+	$dietary_restrictions = $ci->user_dietary_restrictions_model->get_user_dietary_restrictions($ci->user_id);
+	return $ci->recipe_model->get_recipe_based_on_preference($user_preference, $dietary_restrictions);
 }
 
-function process_response($ci, $user_preference, $post_data, $response): array {
-	if (!$response) {
-		return [];
-	}
-
-	$recipes = json_decode($response, true);
-	if (empty($recipes['results'])) {
+function process_response($ci, $user_preference, $post_data, $recipes): array {
+	if (!isset($recipes['results'])) {
 		return [];
 	}
 	$data = [];
@@ -165,7 +169,6 @@ function get_response($post_data) {
 			"protein" => "344g",
 			"fats" => "344g",
 			"taste" => "Spicy and savory with a hint of tanginess",
-			"servings" => "2",
 			"cuisine" => "Indian",
 			"spice" => "Medium",
 			"meal_type" => "Dinner",
@@ -179,7 +182,6 @@ function get_response($post_data) {
 			"protein" => "15g",
 			"fats" => "10g",
 			"taste" => "Fresh and crunchy with a hint of umami",
-			"servings" => "2",
 			"cuisine" => "Chinese",
 			"spice" => "Low",
 			"meal_type" => "Lunch",
@@ -193,7 +195,6 @@ function get_response($post_data) {
 			"protein" => "10g",
 			"fats" => "40g",
 			"taste" => "Garlicky and mildly spicy",
-			"servings" => "2",
 			"cuisine" => "Italian",
 			"spice" => "Medium",
 			"meal_type" => "Dinner",
@@ -207,7 +208,6 @@ function get_response($post_data) {
 			"protein" => "20g",
 			"fats" => "25g",
 			"taste" => "Fresh and tangy",
-			"servings" => "2",
 			"cuisine" => "Italian",
 			"spice" => "None",
 			"meal_type" => "Appetizer",
@@ -221,7 +221,6 @@ function get_response($post_data) {
 			"protein" => "50g",
 			"fats" => "20g",
 			"taste" => "Savory with a kick of freshness",
-			"servings" => "2",
 			"cuisine" => "Mexican",
 			"spice" => "Medium",
 			"meal_type" => "Dinner",
@@ -235,7 +234,6 @@ function get_response($post_data) {
 			"protein" => "60g",
 			"fats" => "25g",
 			"taste" => "Savory with a hint of sweetness",
-			"servings" => "2",
 			"cuisine" => "Asian",
 			"spice" => "Medium",
 			"meal_type" => "Dinner",
@@ -249,7 +247,6 @@ function get_response($post_data) {
 			"protein" => "20g",
 			"fats" => "5g",
 			"taste" => "Hearty and comforting",
-			"servings" => "2",
 			"cuisine" => "Middle Eastern",
 			"spice" => "Medium",
 			"meal_type" => "Lunch",
@@ -263,7 +260,6 @@ function get_response($post_data) {
 			"protein" => "10g",
 			"fats" => "20g",
 			"taste" => "Fluffy and sweet",
-			"servings" => "2",
 			"cuisine" => "American",
 			"spice" => "None",
 			"meal_type" => "Breakfast",
@@ -277,7 +273,6 @@ function get_response($post_data) {
 			"protein" => "15g",
 			"fats" => "10g",
 			"taste" => "Creamy and earthy",
-			"servings" => "2",
 			"cuisine" => "Italian",
 			"spice" => "Low",
 			"meal_type" => "Dinner",
@@ -291,7 +286,6 @@ function get_response($post_data) {
 			"protein" => "10g",
 			"fats" => "15g",
 			"taste" => "Fresh and tangy",
-			"servings" => "2",
 			"cuisine" => "Greek",
 			"spice" => "None",
 			"meal_type" => "Appetizer",
@@ -299,7 +293,7 @@ function get_response($post_data) {
 		]
 	];
 
-	return json_encode($response);
+	return ($response);
 	$url = "https://example.com/api/endpoint";
 
 	$ch = curl_init();
@@ -314,7 +308,7 @@ function get_response($post_data) {
 	return $response;
 }
 
-function get_location($ci) {
+function get_location($ci): false|string {
     $user_ip = $ci->input->ip_address();
     $access_token = 'b70ea86a1781aa';
     $url = "https://ipinfo.io/{$user_ip}/json?token={$access_token}";
@@ -330,4 +324,45 @@ function get_location($ci) {
         return $location_data['region'] . ','. $location_data['country'];
     }
 	return false;
+}
+function save_recipe($ci, $recipe_id): bool {
+	$ci->load->model('saved_recipes_model');
+	$exists = $ci->saved_recipes_model->recipe_exists($ci->user_id, $recipe_id);
+	if (!$exists) {
+		$data = array(
+			'user_id' => $ci->user_id,
+			'recipe_id' => $recipe_id
+		);
+
+		$ci->saved_recipes_model->insert_saved_recipe($data);
+	}
+	return true;
+}
+
+function fetch_saved_recipes($ci): array {
+	$ci->load->model('saved_recipes_model');
+	$recipes = $ci->saved_recipes_model->get_saved_recipes($ci->user_id);
+	$data = [];
+	$index = 0;
+	foreach ($recipes as $recipe) {
+		$data[$index] = [
+			'title' => $recipe['title'],
+			'image_url' => upload_image($ci, $recipe['image_url']) ?? NULL,
+			'ingredients' => $recipe['ingredients'] ?? NULL,
+			'carbs' => $recipe['carbs'] ?? NULL,
+			'proteins' => $recipe['protein']?? NULL,
+			'fats' => $recipe['fats']?? NULL,
+			'servings' => $recipe['servings']?? NULL,
+			'cuisine' => $recipe['cuisine'] ?? NULL,
+			'spice' => $recipe['spice'] ?? NULL,
+			'meal_type' => $recipe['meal_type'] ?? NULL,
+			'cooking_time' => $recipe['cooking_time'] ?? NULL,
+			'cooking_style' => $recipe['cooking_style'] ?? NULL,
+			'cleaned_ingredients' => $recipe['cleaned_ingredients'] ?? NULL,
+		];
+
+		$data[$index]['recipe_id'] = (int)$recipe;
+		$index++;
+	}
+	return array_values($data);
 }

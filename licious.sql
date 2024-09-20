@@ -488,3 +488,15 @@ ALTER TABLE `recipes` ADD `sub_category_id` INT NULL AFTER `category_id`;
 ALTER TABLE `recipes` ADD `cooking_time` INT NULL DEFAULT NULL AFTER `cooking_style`;
 ALTER TABLE `recipes` ADD `location` VARCHAR(100) NULL AFTER `cooking_time`;
 ALTER TABLE `recipes` ADD `ingredients` TEXT NULL AFTER `location`;
+CREATE TABLE `saved_recipes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `recipe_id` int NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `recipe_id` (`recipe_id`),
+  CONSTRAINT `saved_recipes_ibfk_1` FOREIGN KEY (`recipe_id`) REFERENCES `recipes` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `saved_recipes_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+);

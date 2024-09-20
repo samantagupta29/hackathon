@@ -15,6 +15,46 @@ class recipe_model extends CI_Model {
 		$query = $this->db->get();
 		return $query->result_array()[0] ?? [];
 	}
+
+	public function get_recipe_based_on_preference($data, $dietary_restrictions) {
+		$this->db->select('id as recipe_id, title, image as image_url, carbs, proteins, fats, food_taste as taste, instructions, cuisine, cooking_style, spice, cooking_time, ');
+		if ($data['category_id']) {
+			$this->db->where('category_id', $data['category']);
+		}
+		if ($data['sub_category_id']) {
+			$this->db->where('sub_category_id', $data['sub_category_id']);
+		}
+		if ($data['carbs']) {
+			$this->db->where('carbs', $data['carbs']);
+		}
+		if ($data['proteins']) {
+			$this->db->where('proteins', $data['proteins']);
+		}
+		if ($data['fats']) {
+			$this->db->where('fats', $data['fats']);
+		}
+		if ($data['cooking_time']) {
+			$this->db->where('cooking_time <', $data['cooking_time'],);
+		}
+		if ($data['cuisine']) {
+			$this->db->where('cuisine', $data['cuisine'],);
+		}
+		if ($data['spice_tolerance']) {
+			$this->db->where('spice_tolerance', $data['spice_tolerance'],);
+		}
+		if ($data['cooking_style']) {
+			$this->db->where('cooking_style', $data['cooking_style']);
+		}
+
+		if ($dietary_restrictions) {
+			$dietary_restrictions = explode(',', $dietary_restrictions);
+			foreach ($dietary_restrictions as $dietary_restrict) {
+				$this->db->not_like('ingredients', $dietary_restrict);
+			}
+		}
+		$query = $this->db->get('recipes', 10);
+		return $query->result_array() ?? [];
+	}
 	public function add_recipe($data) {
 		$this->db->where('title', $data['title']);
 		$this->db->where('category_id', $data['category']);
