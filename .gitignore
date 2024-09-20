@@ -29,5 +29,4 @@ backend/vendor/
 *.sublime-project
 /tests/tests/
 /tests/results/
-/backend/application/config/*
 /front-end/node_modules/*
