@@ -21,7 +21,7 @@ function get_user_applied_filters($ci): array {
 function apply_filters($ci): array {
 	$ci->load->model('user_preferences_model');
 	$input_data = set_data($ci);
-	$ci->user_preferences_model->insert_update_user_preference($input_data);
+	$ci->user_preferences_model->insert_update_user_preference($input_data, $ci->user_id);
 	return $input_data;
 }
 function set_data($ci) {
@@ -68,6 +68,7 @@ function set_dietary_restrictions($ci, $dietary_restrictions) {
 	$ci->load->model('user_dietary_restrictions_model');
 	if (!$dietary_restrictions) {
 		$ci->user_dietary_restrictions_model->delete_user_dietary_restrictions($ci->user_id);
+		return;
 	}
 	$ci->load->model('ingredients_model');
 	$dietary_restrictions_array = explode(',', $dietary_restrictions);
