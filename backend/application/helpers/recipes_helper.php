@@ -31,7 +31,7 @@ function process_response($ci, $user_preference, $post_data, $response): array {
 		$data[$index] = [
 			'title' => $recipe['title'],
 			'image_url' => upload_image($ci, $recipe['image_url']) ?? NULL,
-			'ingredients' => str_replace($recipe['ingredients'], ",", "<br/>"),
+			'ingredients' => str_replace(",", "<br/>", $recipe['ingredients']),
 			'carbs' => $recipe['carbs'] ?? NULL,
 			'proteins' => $recipe['protein']?? NULL,
 			'fats' => $recipe['fats']?? NULL,
