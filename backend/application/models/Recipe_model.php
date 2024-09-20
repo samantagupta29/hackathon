@@ -6,6 +6,15 @@ class recipe_model extends CI_Model {
 		$this->db = $this->load->database('default', true);
 	}
 
+	public function get_recipe($recipe_id) {
+		$this->db->select('r.title, r.image, r.carbs, r.proteins, r.fats, r.instructions, r.cuisine, r.cooking_style, r.spice, r.cooking_time, s.name as stock_item, s.description as stock_item_description');
+		$this->db->from('recipes r');
+		$this->db->join('stock s', 's.category_id = r.category_id AND s.sub_category_id = r.sub_category_id AND s.is_available = 1', 'left');
+		$this->db->where('r.id', $recipe_id);
+
+		$query = $this->db->get();
+		return $query->result_array()[0] ?? [];
+	}
 	public function add_recipe($data) {
 		$this->db->where('title', $data['title']);
 		$this->db->where('category_id', $data['category']);
@@ -28,6 +37,7 @@ class recipe_model extends CI_Model {
 			'spice' => $data['spice'],
 			'cooking_style' => $data['cooking_style'],
 			'cooking_time' => $data['cooking_time'],
+			'ingredients' => $data['ingredients'],
 		);
 
 		if ($query->num_rows() === 0) {

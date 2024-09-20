@@ -12,6 +12,10 @@ function fetch_recipes($ci) {
 	return process_response($ci, $user_preference, $post_data, get_response($post_data));
 }
 
+function fetch_recipe($ci, $recipe_id) {
+	$ci->load->model('recipe_model');
+    return $ci->recipe_model->get_recipe($recipe_id);
+}
 function fetch_from_db($post_data) {
 
 }
@@ -31,7 +35,7 @@ function process_response($ci, $user_preference, $post_data, $response): array {
 		$data[$index] = [
 			'title' => $recipe['title'],
 			'image_url' => upload_image($ci, $recipe['image_url']) ?? NULL,
-			'ingredients' => str_replace(",", "<br/>", $recipe['ingredients']),
+			'ingredients' => $recipe['ingredients'] ?? NULL,
 			'carbs' => $recipe['carbs'] ?? NULL,
 			'proteins' => $recipe['protein']?? NULL,
 			'fats' => $recipe['fats']?? NULL,
@@ -41,11 +45,14 @@ function process_response($ci, $user_preference, $post_data, $response): array {
 			'meal_type' => $recipe['meal_type'] ?? NULL,
 			'instructions' => add_br_tags($recipe['instructions'] ?? NULL),
 			'cooking_time' => $recipe['cooking_time'] ?? NULL,
-			'cooking_style' => $recipe['cooking_style'] ?? NULL
+			'cooking_style' => $recipe['cooking_style'] ?? NULL,
+			'cleaned_ingredients' => $recipe['cleaned_ingredients'] ?? NULL,
 		];
 
 		$recipe = add_recipe($ci, $data[$index], $post_data, $user_preference);
 		$data[$index]['recipe_id'] = (int)$recipe;
+		unset($data[$index]['instructions']);
+		unset($data[$index]['cleaned_ingredients']);
 		$index++;
 	}
 	return array_values($data);
@@ -61,7 +68,7 @@ function add_recipe($ci, $recipe, $post_data, $user_preference) {
 	if (!$newly_created) {
 		return $recipe_id;
 	}
-	$ingredients = $recipe['ingredients'] ? explode(',', $recipe['ingredients']) : [];
+	$ingredients = $recipe['cleaned_ingredients'] ? explode(',', $recipe['ingredients']) : [];
 	foreach ($ingredients as $ingredient) {
 		$ingredient_id = $ci->ingredients_model->get_or_create(trim($ingredient));
 		if ($ingredient_id) {
@@ -324,5 +331,3 @@ function get_location($ci) {
     }
 	return false;
 }
-
-?>

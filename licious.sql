@@ -487,3 +487,4 @@ ALTER TABLE `recipes` ADD `category_id` INT NULL AFTER `id`;
 ALTER TABLE `recipes` ADD `sub_category_id` INT NULL AFTER `category_id`;
 ALTER TABLE `recipes` ADD `cooking_time` INT NULL DEFAULT NULL AFTER `cooking_style`;
 ALTER TABLE `recipes` ADD `location` VARCHAR(100) NULL AFTER `cooking_time`;
+ALTER TABLE `recipes` ADD `ingredients` TEXT NULL AFTER `location`;
