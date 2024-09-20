@@ -30,11 +30,11 @@ class recipe_model extends CI_Model {
 			'cooking_time' => $data['cooking_time'],
 		);
 
-		if ($query->num_rows() == 0) {
+		if ($query->num_rows() === 0) {
 			$this->db->insert('recipes', $data);
-			return $this->db->insert_id();
+			return [$this->db->insert_id(), true];
 		} else {
-			return false;
+			return [$query->row()->id, false];
 		}
 	}
 

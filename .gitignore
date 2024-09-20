@@ -14,7 +14,7 @@
 /backend/user_guide_src/cilexer/build/*
 /backend/user_guide_src/cilexer/dist/*
 backend/user_guide_src/cilexer/pycilexer.egg-info/*
-backend//vendor/
+backend/vendor/
 
 # IDE Files
 #-------------------------
@@ -30,3 +30,4 @@ backend//vendor/
 /tests/tests/
 /tests/results/
 /backend/application/config/*
+/front-end/node_modules/*

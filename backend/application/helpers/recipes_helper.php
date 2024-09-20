@@ -31,7 +31,7 @@ function process_response($ci, $user_preference, $post_data, $response): array {
 		$data[$index] = [
 			'title' => $recipe['title'],
 			'image_url' => upload_image($ci, $recipe['image_url']) ?? NULL,
-			'ingredients' => $recipe['ingredients'],
+			'ingredients' => str_replace($recipe['ingredients'], ",", "<br/>"),
 			'carbs' => $recipe['carbs'] ?? NULL,
 			'proteins' => $recipe['protein']?? NULL,
 			'fats' => $recipe['fats']?? NULL,
@@ -39,12 +39,13 @@ function process_response($ci, $user_preference, $post_data, $response): array {
 			'cuisine' => $recipe['cuisine'] ?? NULL,
 			'spice' => $recipe['spice'] ?? NULL,
 			'meal_type' => $recipe['meal_type'] ?? NULL,
-			'instructions' => $recipe['instructions'] ?? NULL,
+			'instructions' => add_br_tags($recipe['instructions'] ?? NULL),
 			'cooking_time' => $recipe['cooking_time'] ?? NULL,
 			'cooking_style' => $recipe['cooking_style'] ?? NULL
 		];
 
-		add_recipe($ci, $data[$index], $post_data, $user_preference);
+		$recipe = add_recipe($ci, $data[$index], $post_data, $user_preference);
+		$data[$index]['recipe_id'] = (int)$recipe;
 		$index++;
 	}
 	return array_values($data);
@@ -56,10 +57,9 @@ function add_recipe($ci, $recipe, $post_data, $user_preference) {
 	$recipe['taste'] = $recipe['taste'] ?? NULL;
 	$recipe['texture'] = $recipe['taste'] ?? NULL;
 	$recipe['location'] = $post_data['location'] ?? NULL;
-	$recipe_id = $ci->recipe_model->add_recipe($recipe);
-
-	if (!$recipe_id) {
-		return;
+	list($recipe_id, $newly_created) = $ci->recipe_model->add_recipe($recipe);
+	if (!$newly_created) {
+		return $recipe_id;
 	}
 	$ingredients = $recipe['ingredients'] ? explode(',', $recipe['ingredients']) : [];
 	foreach ($ingredients as $ingredient) {
@@ -68,8 +68,7 @@ function add_recipe($ci, $recipe, $post_data, $user_preference) {
 			$ci->recipe_ingredients_model->insert($recipe_id, $ingredient_id);
 		}
 	}
-
-
+	return $recipe_id;
 }
 function upload_image($ci, $image_url) {
 	return 'sa';
@@ -139,6 +138,13 @@ function restructure_data($ci, $user_preference, $dietary_restrictions): array {
     }
 	$data['servings'] = 2;
 	return $data;
+}
+function add_br_tags($input): string {
+	if (!$input) {
+		return $input;
+	}
+	$output = preg_replace('/(\d+\. )/', '<br>$1', $input);
+	return ltrim($output, '<br/>');
 }
 
 function get_response($post_data) {
