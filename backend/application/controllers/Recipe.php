@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Recipe extends CI_Controller {
+class Recipe extends MY_Controller {
 
 	public function get_top_recipes(): void {
 		$data = new stdClass();
@@ -72,7 +72,5 @@ class Recipe extends CI_Controller {
 				'image' => 'https:xyz.com'
 			]
 		];
-		header('Content-Type: application/json; charset=utf-8');
-		echo json_encode($data);
 	}
 }
