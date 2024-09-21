@@ -15,7 +15,7 @@ function fetch_recipes($ci) {
 		$post_data['count_of_recipes_to_fetch'] = 10 - count($response_from_db);
 		$response_from_ai = get_response($post_data);
 	}
-	$recipes['results'] = array_merge($response_from_db, $response_from_ai['results']);
+	$recipes['results'] = array_merge($response_from_db, $response_from_ai['results'] ?? []);
 	return process_response($ci, $user_preference, $post_data, $recipes);
 
 }
