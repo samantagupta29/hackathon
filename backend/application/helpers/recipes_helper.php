@@ -17,9 +17,7 @@ function fetch_recipes($ci) {
 		$response_from_ai = get_response($post_data);
 		$response_from_ai['results'] =  process_response($ci, $user_preference, $post_data, $response_from_ai);
 	}
-	$recipes['results'] = array_merge($response_from_db, $response_from_ai['results'] ?? []);
-	return $recipes;
-
+	return array_merge($response_from_db, $response_from_ai['results'] ?? []);
 }
 
 function fetch_recipe($ci, $recipe_id) {
