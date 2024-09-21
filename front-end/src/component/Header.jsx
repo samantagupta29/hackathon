@@ -11,9 +11,9 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-// import LiciousLogo from "../LiciousLogo.png";
+import LiciousLogo from "../assets/LiciousLogo.png"
 import LayersIcon from "@mui/icons-material/Layers";
-import ReceipeDetails from "./ReceipeDeatils";
+import ReceipeDetails from "./ReceipeDetails";
 
 
 export default function Header() {
@@ -31,11 +31,11 @@ export default function Header() {
            height: "100%",
          }}
        >
-         {/* <img
+         <img
            src={LiciousLogo}
            alt="Licious"
            style={{ height: 50, marginTop: 10, marginRight: 30 }}
-         /> */}
+         />
 
 
          <IconButton>
@@ -102,7 +102,7 @@ export default function Header() {
          </IconButton>
        </Toolbar>
      </AppBar>
-     {/* <ReceipeDetails /> */}
+     {/* <ReceipeDetails/> */}
    </>
  );
 }
