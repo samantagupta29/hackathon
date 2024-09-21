@@ -24,16 +24,18 @@ function apply_filters($ci): array {
 	return $ci->user_preferences_model->get_user_preferences($ci->user_id);
 }
 function set_data($ci) {
-	$cuisine = $ci->input->post('cuisine') ?? null;
-	$spice_tolerance = $ci->input->post('spice_tolerance') ?? null;
-	$dietary_restrictions = $ci->input->post('dietary_restricts') ?? null;
-	$cooking_style = $ci->input->post('cooking_style') ?? null;
-	$cooking_time = $ci->input->post('cooking_time') ?? null;
-	$category = $ci->input->post('category') ?? null;
-	$subcategory = $ci->input->post('subcategory') ?? null;
-	$carbs = $ci->input->post('carbs') ?? null;
-	$proteins = $ci->input->post('proteins') ?? null;
-	$fats = $ci->input->post('fats') ?? '3g';
+	$post_input = file_get_contents("php://input");
+	$post_input = json_decode($post_input, true);
+	$cuisine = $post_input['cuisine'] ?? null;
+	$spice_tolerance = $post_input['spice_tolerance'] ?? null;
+	$dietary_restrictions = $post_input['dietary_restricts'] ?? null;
+	$cooking_style = $post_input['cooking_style'] ?? null;
+	$cooking_time = $post_input['cooking_time'] ?? null;
+	$category = $post_input['category'] ?? 'Fish';
+	$subcategory = $post_input['subcategory'] ?? null;
+	$carbs = $post_input['carbs'] ?? null;
+	$proteins = $post_input['proteins'] ?? null;
+	$fats = $post_input['fats'] ?? '3g';
 
 	$category_id = NULL;
 	$subcategory_id = NULL;
