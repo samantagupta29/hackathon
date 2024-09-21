@@ -70,7 +70,7 @@ function process_response($ci, $user_preference, $post_data, $recipes): array {
 		}
 		$data[$index] = [
 			'title' => clean_text($recipe['title']),
-			'image_url' => upload_image($ci, $recipe['image_url']) ?? NULL,
+			'image_url' => upload_image($ci, $recipe['image_url'] ?? NULL),
 			'ingredients' => clean_text(get_instructions($recipe['ingredients'] ?? NULL)),
 			'carbs' => clean_text($recipe['carbs'] ?? NULL),
 			'proteins' => clean_text($recipe['proteins'] ?? NULL),
