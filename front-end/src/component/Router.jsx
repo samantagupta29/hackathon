@@ -15,6 +15,7 @@ export default function Router() {
         <Route path='/generate_receipe/recipe_detail/:recipeId' element={<ReceipeDetails />} />
         <Route path='/saved_recipes' element={<SavedReceipes />} />
         <Route path='/festive' element={<FestivePage />} />
+        <Route path='/currency' element={<Currency />} />
       </Routes>
     </div>
   );
