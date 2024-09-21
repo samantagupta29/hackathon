@@ -71,7 +71,7 @@ function process_response($ci, $user_preference, $post_data, $recipes): array {
 		$data[$index] = [
 			'title' => clean_text($recipe['title']),
 			'image_url' => upload_image($ci, $recipe['image_url'] ?? NULL),
-			'ingredients' => clean_text(get_instructions($recipe['ingredients'] ?? NULL)),
+			'ingredients' => clean_text(get_ingredients($recipe['ingredients'] ?? NULL)),
 			'carbs' => clean_text($recipe['carbs'] ?? NULL),
 			'proteins' => clean_text($recipe['proteins'] ?? NULL),
 			'fats' => clean_text($recipe['fats'] ?? NULL),
@@ -102,6 +102,14 @@ function clean_text($text) {
 	return $text;
 }
 
+function get_ingredients($instructions) {
+	if (is_array($instructions)) {
+		return implode(',', $instructions);
+	} else {
+		return $instructions;
+	}
+}
+
 function get_instructions($instructions) {
 	if (is_array($instructions)) {
 		return implode('<br>', $instructions);
@@ -109,7 +117,6 @@ function get_instructions($instructions) {
 		return $instructions;
 	}
 }
-
 function add_recipe($ci, $recipe, $post_data, $user_preference) {
 	$recipe['category'] = $user_preference['category_id'] ?? NULL;
 	$recipe['subcategory'] = $user_preference['sub_category_id']?? NULL;
