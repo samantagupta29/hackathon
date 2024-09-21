@@ -123,7 +123,6 @@ def generate():
 		results.append(
 			{
 				"title": extracted_components.get('title'),
-				"image_url": extracted_components.get('image_url'),
 				"ingredients": extracted_components.get('ingredients'),
 				"carbs": extracted_components.get('nutritional_info', {}).get('carbs'),
 				"proteins": extracted_components.get('nutritional_info', {}).get('proteins'),
@@ -177,9 +176,6 @@ def extract_recipe_components(recipe_output):
 		components['texture'] = texture_match.group(1).strip()
 
 	# Extract image URL
-	image_url_match = re.search(r"#### Image URL:\n!\[(.+?)\]\((.+?)\)", recipe_output)
-	if image_url_match:
-		components['image_url'] = image_url_match.group(2).strip()
 
 	# Extract nutritional information
 	nutrition_match = re.search(r"#### Nutritional Information \(per serving\):\n- Carbs: (.+)\n- Proteins: (.+)\n- Fats: (.+)", recipe_output)
