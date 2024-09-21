@@ -65,7 +65,8 @@ def generate_recipe_prompt(data):
     if "servings" in data:
         prompt_parts.append(f"for {data['servings']} servings")
 
-    prompt_parts.append(f"in less than {data['cooking_time']}")
+    if "cooking_time" in data:
+        prompt_parts.append(f"in less than {data['cooking_time']}")
 
     prompt = " ".join(prompt_parts) + ". Suggest me a recipe."
 
@@ -75,7 +76,7 @@ def generate_recipe_prompt(data):
 app = Flask(__name__)
 
 
-@app.route("/generate", methods=["POST"])
+@app.route("/generate", methods=["POST","GET"])
 def generate():
     data = request.json
 
@@ -153,4 +154,5 @@ def extract_cooking_time(recipe):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
+
