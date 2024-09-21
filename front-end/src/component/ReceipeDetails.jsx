@@ -31,7 +31,7 @@ export default function ReceipeDetails() {
         console.log(data)
         setResponse(data.data);
       })
-    },[])
+    })
 
  const instructionSteps = recipes?.instructions?.split('\n')?.map(step => step.trim()).filter(step => step);
  instructionSteps?.map((step) => {
