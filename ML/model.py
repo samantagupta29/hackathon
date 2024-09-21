@@ -107,43 +107,41 @@ app = Flask(__name__)
 
 @app.route("/generate", methods=["POST", "GET"])
 def generate():
-	# data = request.json
-	data = {
-		"hero_ingredient": 'chicken'
-	}
+	# data = {
+		# 	"hero_ingredient": 'chicken'
+	# }
+	data = request.json
 	prompt = generate_recipe_prompt(data)
 	num_recipes = data.get("count_of_recipes_to_fetch", 1)
 
 	recipes = generate_recipes(prompt, num_recipes)
 	results = []
+
 	for recipe in recipes:
 		extracted_components = extract_recipe_components(recipe)
-		# image_url = generate_image(recipe)
-
-		# taste = categorize_taste(recipe)
-		# texture = categorize_texture(recipe)
 
 		results.append(
 			{
-				"title": extracted_components.get('title', "Recipe"),
-				"image_url": image_url,
-				"ingredients": extract_ingredients(recipe),
-				"carbs": data["nutrients"]["carbs"],
-				"protein": data["nutrients"]["proteins"],
-				"fats": data["nutrients"]["fats"],
-				"taste": taste,
-				"servings": str(data["servings"]),
-				"cuisine": data["cuisine"],
-				"spice": data["spice_tolerance"],
-				"meal_type": "Dinner",
-				"instructions": extract_instructions(recipe),
-				"texture": texture,
-				"cooking_style": data["cooking_style"],
-				"cooking_time": extract_cooking_time(recipe),
+				"title": extracted_components.get('title'),
+				"image_url": extracted_components.get('image_url'),
+				"ingredients": extracted_components.get('ingredients'),
+				"carbs": extracted_components.get('nutritional_info', {}).get('carbs'),
+				"proteins": extracted_components.get('nutritional_info', {}).get('proteins'),
+				"fats": extracted_components.get('nutritional_info', {}).get('fats'),
+				"taste": extracted_components.get('taste'),
+				"servings": extracted_components.get('servings'),
+				"cuisine": extracted_components.get('cuisine'),
+				"spice": extracted_components.get('spice'),
+				"meal_type": extracted_components.get('meal_type'),
+				"instructions": extracted_components.get('instructions'),
+				"texture": extracted_components.get('texture'),
+				"cooking_style": extracted_components.get('cooking_style'),
+				"cooking_time": extracted_components.get('cooking_time'),
 			}
 		)
 
 	return jsonify(results)
+
 
 def extract_recipe_components(recipe_output):
 	components = {}
