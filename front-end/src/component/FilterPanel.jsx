@@ -135,7 +135,7 @@ const FilterPanel = () => {
               {filters.category} Categories
             </h3>
             <ul className="space-y-2">
-              {subcategoryOptions[filters.category]?.((subcategory) => (
+            {subcategoryOptions[filters.category]?.map((subcategory) => (
                 <li key={subcategory}>
                   <label className="flex items-center space-x-2">
                     <input
