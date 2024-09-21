@@ -21,7 +21,7 @@ function apply_filters($ci): array {
 	$ci->load->model('user_preferences_model');
 	$input_data = set_data($ci);
 	$ci->user_preferences_model->insert_update_user_preference($input_data, $ci->user_id);
-	return  $ci->user_preferences_model->get_user_preferences($ci->user_id);
+	return $ci->user_preferences_model->get_user_preferences($ci->user_id);
 }
 function set_data($ci) {
 	$cuisine = $ci->input->post('cuisine') ?? null;

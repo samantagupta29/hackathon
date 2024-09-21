@@ -23,6 +23,10 @@ class user_preferences_model extends CI_Model {
 		}
 	}
 	public function insert_update_user_preference($data, $user_id) {
+		$data['fats'] = $data['fats'] ? filter_var($data['fats'], FILTER_SANITIZE_NUMBER_INT) : NULL;
+		$data['carbs'] = $data['carbs'] ? filter_var($data['carbs'], FILTER_SANITIZE_NUMBER_INT) : NULL;
+		$data['proteins'] = $data['proteins'] ? filter_var($data['proteins'], FILTER_SANITIZE_NUMBER_INT) : NULL;
+
 		$query = $this->db->get('user_preference');
 		if ($query->num_rows() > 0) {
 			$this->db->set('category_id', $data['category']);
@@ -35,7 +39,7 @@ class user_preferences_model extends CI_Model {
 			$this->db->set('proteins', $data['proteins']);
 			$this->db->set('fats', $data['fats']);
 			$this->db->where('user_id', $user_id);
-			return $this->db->update('user_preference');
+			return  $this->db->update('user_preference');
 		} else {
 			$data = array(
 				'user_id' => $user_id,
