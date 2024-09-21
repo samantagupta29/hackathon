@@ -9,7 +9,7 @@ function fetch_recipes($ci) {
 	$user_preference = $ci->user_preferences_model->get_user_preferences($ci->user_id);
 	$dietary_restrictions = $ci->user_dietary_restrictions_model->get_user_dietary_restrictions($ci->user_id);
 	$post_data = restructure_data($ci, $user_preference, $dietary_restrictions);
-	$response_from_db = fetch_from_db($ci, $user_preference, $dietary_restrictions);
+	$response_from_db = fetch_from_db($ci, $user_preference);
 	$response_from_ai = [];
 	if (count($response_from_db) < 10) {
 		$post_data['count_of_recipes_to_fetch'] = 10 - count($response_from_db);
@@ -24,7 +24,7 @@ function fetch_recipe($ci, $recipe_id) {
 	$ci->load->model('recipe_model');
     return $ci->recipe_model->get_recipe($recipe_id);
 }
-function fetch_from_db($ci, $user_preference, $dietary_restrictions) {
+function fetch_from_db($ci, $user_preference) {
 	$dietary_restrictions = $ci->user_dietary_restrictions_model->get_user_dietary_restrictions($ci->user_id);
 	return $ci->recipe_model->get_recipe_based_on_preference($user_preference, $dietary_restrictions);
 }

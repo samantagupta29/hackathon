@@ -19,7 +19,7 @@ class recipe_model extends CI_Model {
 	public function get_recipe_based_on_preference($data, $dietary_restrictions) {
 		$this->db->select('id as recipe_id, title, image as image_url, carbs, proteins, fats, food_taste as taste, instructions, cuisine, cooking_style, spice, cooking_time, ');
 		if ($data['category_id']) {
-			$this->db->where('category_id', $data['category']);
+			$this->db->where('category_id', $data['category_id']);
 		}
 		if ($data['sub_category_id']) {
 			$this->db->where('sub_category_id', $data['sub_category_id']);
