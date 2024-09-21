@@ -64,9 +64,9 @@ def generate_recipe_prompt(data):
 
 	if "nutrients" in data:
 		prompt_parts.append(
-			f"Nutrients - Carbs: {data['nutrients']['carbs']}, "
-			f"Proteins: {data['nutrients']['proteins']}, "
-			f"Fats: {data['nutrients']['fats']}."
+			f"Nutrients - Carbs: {data.get('nutrients', {}).get('carbs', 'not specified')}, "
+			f"Proteins: {data.get('nutrients', {}).get('proteins', 'not specified')}, "
+			f"Fats: {data.get('nutrients', {}).get('fats', 'not specified')}."
 		)
 
 	if "cuisine" in data:
