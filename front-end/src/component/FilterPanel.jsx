@@ -25,7 +25,7 @@ const FilterPanel = () => {
 
   const handleLoading = async () => {
     try {
-      const response = await axios.get('/api/user_preferences/apply_filters_and_get_recipes');
+      const response = await axios.get('user_preferences/apply_filters_and_get_recipes');
       // const response2 = await axios.get('/api/user_preferences/get_filters/apply_filters_and_get_recipes', payload);
       setRecipes(response.data.recipes)
       console.log('Success: default recipes are loaded', response.data);
@@ -78,7 +78,7 @@ const FilterPanel = () => {
     };
 
     try {
-      const response = await axios.get('/api/user_preferences/apply_filters_and_get_recipes', payload);
+      const response = await axios.get('user_preferences/apply_filters_and_get_recipes', payload);
       setRecipes(response.data.recipes)
       console.log('Success:', response.data);
       // Handle successful response (e.g., reset filters, show a success message)
@@ -110,7 +110,7 @@ const FilterPanel = () => {
         <div className="mb-6">
           <h3 className="font-semibold text-gray-600 mb-2">category</h3>
           <ul className="space-y-2">
-            {categoryOptions.map((category) => (
+            {categoryOptions?.map((category) => (
               <li key={category}>
                 <label className="flex items-center space-x-2">
                   <input

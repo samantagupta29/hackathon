@@ -11,13 +11,22 @@ export default defineConfig({
     port: 8080,  // Change this to any port you want (e.g., 4000, 5000, etc.)
 
     // Handling CORS and proxy configuration
-    proxy: {
-      '/api': {
-        target: 'http://13.200.223.248',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+    // proxy: {
+    //   '/api': {
+    //     target: 'http://13.200.223.248',
+    //     changeOrigin: true,
+    //     rewrite: (path) => path.replace(/^\/api/, ''),
+    //   },
+    // },
+    server: {
+      proxy: {
+        '/': {
+          target: 'http://13.200.223.248',
+          changeOrigin: true,
+        },
       },
     },
+    
 
     // Enable CORS handling if needed
     cors: {
