@@ -7,7 +7,7 @@ console.log(recipe.recipe_id)
   return (
     <div class="relative flex flex-col my-6 bg-white shadow-sm border border-slate-200 rounded-lg w-96 m-10 ml-20">
     <div class="relative h-56 m-2.5 overflow-hidden text-white rounded-md">
-    <img src="https://thehappyfoodie.co.uk/wp-content/uploads/2023/03/Butter_Chicken.jpg" alt="card-image" />
+    {/* <img src="https://thehappyfoodie.co.uk/wp-content/uploads/2023/03/Butter_Chicken.jpg" alt="card-image" /> */}
       {/* <img src={recipe.image_url} alt="card-image" /> */}
     </div>
     <div class="p-4">
