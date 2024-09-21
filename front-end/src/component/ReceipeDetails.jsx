@@ -2,6 +2,9 @@ import React from "react";
 import { styled } from "@mui/material/styles";
 import { Card, CardContent, Typography, CardMedia, Box } from "@mui/material";
 import { useLocation } from 'react-router-dom';
+import { useEffect } from "react";
+import axios from "axios";
+import { useState } from "react";
 // import FoodImage from "../FoodImage.jpg";
 
 
@@ -18,38 +21,20 @@ const Container = styled("div")(({ theme }) => ({
 
 export default function ReceipeDetails() {
     const location = useLocation();
-    const { recipe } = location.state || {};
-//  const recipe = {
-//    title: "Baked Chicken Curry",
-//    image_url: "https://thehappyfoodie.co.uk/wp-content/uploads/2023/03/Butter_Chicken.jpg", // Use a placeholder image for now
-//    ingredients: [
-//      "500g Chicken Curry cuts",
-//      "2 tablespoons curry powder",
-//      "1 cup yogurt",
-//      "1 onion (chopped)",
-//      "2 tomatoes (chopped)",
-//      "2 tablespoons cooking oil",
-//      "salt to taste",
-//      "fresh cilantro for garnish",
-//    ],
-//    carbs: "244g",
-//    protein: "344g",
-//    fats: "344g",
-//    taste: "Spicy and savory with a hint of tanginess",
-//    servings: "2",
-//    cuisine: "Indian",
-//    spice: "Medium",
-//    meal_type: "Dinner",
-//    instructions: `1. Preheat the oven to 200°C (392°F).
-//                  2. In a bowl, mix the chicken with yogurt, curry powder, chopped onion, tomatoes, and salt.
-//                  3. Marinate for at least 5 minutes.
-//                  4. Place the marinated chicken in a baking dish, drizzle with oil, and bake for 10 minutes or until fully cooked.
-//                  5. Garnish with fresh cilantro before serving.`,
-//  }
+    const [recipes, setResponse] = useState([]);
+    const { id } = location.state || {};
+    console.log(id)
 
+    useEffect(() => {
+      axios.get(`http://13.200.223.248/recipe/get_recipe/${id}`)
+      .then((data) => {
+        console.log(data)
+        setResponse(data.data);
+      })
+    })
 
- const instructionSteps = recipe.instructions.split('\n').map(step => step.trim()).filter(step => step);
- instructionSteps.map((step) => {
+ const instructionSteps = recipes?.instructions?.split('\n')?.map(step => step.trim()).filter(step => step);
+ instructionSteps?.map((step) => {
    console.log(step);
  })
  return (
@@ -59,9 +44,9 @@ export default function ReceipeDetails() {
        <CardMedia
          component="img"
          height="250"
-         image={recipe.image_url}
+         image={recipes.image_url}
         //  image={FoodImage} // Replace with a valid image URL
-         alt={recipe.title}
+         alt={recipes.title}
        />
 
 
@@ -69,15 +54,15 @@ export default function ReceipeDetails() {
        <CardContent sx={{ textAlign: "left" }}>
          {/* Title */}
          <Typography variant="h5" component="div" gutterBottom>
-           {recipe.title}
+           {recipes.title}
          </Typography>
 
 
          {/* Cuisine, Spice, Meal Type */}
          <Typography variant="body2"  gutterBottom style={{marginBottom: "15px"}}>
-           <strong>Cuisine:</strong> {recipe.cuisine}&nbsp;&nbsp; |{" "}
-           <strong>Spice Level:</strong> {recipe.spice}&nbsp;&nbsp; |{" "}
-           <strong>Meal Type:</strong> {recipe.meal_type}
+           <strong>Cuisine:</strong> {recipes.cuisine}&nbsp;&nbsp; |{" "}
+           <strong>Spice Level:</strong> {recipes.spice}&nbsp;&nbsp; |{" "}
+           <strong>Meal Type:</strong> {recipes.meal_type}
          </Typography>
 
 
@@ -85,7 +70,7 @@ export default function ReceipeDetails() {
          <Typography variant="body2" color="textPrimary" gutterBottom>
          <strong>Ingredients:</strong>
        </Typography>
-       {recipe.ingredients.map((ingredient, index) => (
+       {recipes?.ingredients?.map((ingredient, index) => (
          <Typography key={index} variant="body2" color="textSecondary">
            {ingredient}
          </Typography>
@@ -95,13 +80,13 @@ export default function ReceipeDetails() {
          {/* Nutritional Information */}
          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 , marginBottom: "20px"}}>
            <Typography variant="body2">
-             <strong>Carbs:</strong> {recipe.carbs}
+             <strong>Carbs:</strong> {recipes.carbs}
            </Typography>
            <Typography variant="body2">
-             <strong>Protein:</strong> {recipe.protein}
+             <strong>Protein:</strong> {recipes.protein}
            </Typography>
            <Typography variant="body2">
-             <strong>Fats:</strong> {recipe.fats}
+             <strong>Fats:</strong> {recipes.fats}
            </Typography>
          </Box>
 
@@ -111,7 +96,7 @@ export default function ReceipeDetails() {
            <strong>Instructions:</strong>
          </Typography>
          <ul>
-           {instructionSteps.map((instruction, index) => (
+           {instructionSteps?.map((instruction, index) => (
              <Typography variant="body2" key={index}>{instruction}</Typography>
            ))}
          </ul>

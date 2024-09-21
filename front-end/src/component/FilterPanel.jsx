@@ -26,7 +26,7 @@ const FilterPanel = () => {
   const handleLoading = async () => {
     try {
       const response = await axios.post('http://13.200.223.248/user_preferences/apply_filters_and_get_recipes');
-      // const response2 = await axios.get('/user_preferences/get_filters/apply_filters_and_get_recipes', payload);
+      // const response2 = await axios.get('/api/user_preferences/get_filters/apply_filters_and_get_recipes', payload);
       setRecipes(response.data.recipes)
       console.log('Success: default recipes are loaded', response.data);
       // Handle successful response (e.g., reset filters, show a success message)
@@ -79,7 +79,7 @@ const FilterPanel = () => {
 
     try {
       // const response = await axios.get('/api/user_preferences/apply_filters_and_get_recipes', payload);
-       const response = await axios.post('http://13.200.223.248/user_preferences/apply_filters_and_get_recipes', payload);
+       const response = await axios.post('/api/user_preferences/apply_filters_and_get_recipes', payload);
       setRecipes(response.data.recipes)
       console.log('Success:', response.data);
       // Handle successful response (e.g., reset filters, show a success message)
@@ -135,7 +135,7 @@ const FilterPanel = () => {
               {filters.category} Categories
             </h3>
             <ul className="space-y-2">
-              {subcategoryOptions[filters.category].map((subcategory) => (
+              {subcategoryOptions[filters.category]?.((subcategory) => (
                 <li key={subcategory}>
                   <label className="flex items-center space-x-2">
                     <input
@@ -219,7 +219,7 @@ const FilterPanel = () => {
         <div className="mb-6">
           <h3 className="font-semibold text-gray-600 mb-2">Cooking Time</h3>
           <ul className="space-y-2">
-            {cookingTimeOptions.map((time) => (
+            {cookingTimeOptions?.map((time) => (
               <li key={time}>
                 <label className="flex items-center space-x-2">
                   <input
@@ -241,7 +241,7 @@ const FilterPanel = () => {
         <div className="mb-6">
           <h3 className="font-semibold text-gray-600 mb-2">Cuisine</h3>
           <ul className="space-y-2">
-            {cuisineOptions.map((cuisine) => (
+            {cuisineOptions?.map((cuisine) => (
               <li key={cuisine}>
                 <label className="flex items-center space-x-2">
                   <input
@@ -318,7 +318,7 @@ const FilterPanel = () => {
         </button> </div>
         <div className='flex flex-wrap ml-10'>
 
-          {recipes.map((recipe) => (
+          {recipes?.map((recipe) => (
             <SuggestedRecipe recipe={recipe} />
           ))}
         </div>

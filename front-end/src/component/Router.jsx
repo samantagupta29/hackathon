@@ -5,6 +5,7 @@ import SavedReceipes from './SavedReceipes';
 import Home from './Home';
 import FilterPanel from './FilterPanel';
 import FestivePage from './FestiveBanner';
+import Currency from './Currency';
 
 export default function Router() {
   return (
