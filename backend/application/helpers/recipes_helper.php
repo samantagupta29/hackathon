@@ -10,14 +10,13 @@ function fetch_recipes($ci) {
 	$dietary_restrictions = $ci->user_dietary_restrictions_model->get_user_dietary_restrictions($ci->user_id);
 	$post_data = restructure_data($ci, $user_preference, $dietary_restrictions);
 	$response_from_db = fetch_from_db($ci, $user_preference);
+//	$response_from_db =  process_response_from_db($ci, $user_preference, $post_data, $response_from_db);
 	$response_from_ai = [];
-	if (count($response_from_db) < 10) {
-		$post_data['count_of_recipes_to_fetch'] = 10 - count($response_from_db);
-		$response_from_ai = get_response($post_data);
-	}
-	$recipes['results'] = array_merge($response_from_db, $response_from_ai['results'] ?? []);
-	return process_response($ci, $user_preference, $post_data, $recipes);
+	$post_data['count_of_recipes_to_fetch'] = 2;
+	$response_from_ai = get_response($post_data);
+	$response_from_ai['results'] =  process_response($ci, $user_preference, $post_data, $response_from_ai);
 
+	return array_merge($response_from_db, $response_from_ai['results'] ?? []);
 }
 
 function fetch_recipe($ci, $recipe_id) {
@@ -25,11 +24,12 @@ function fetch_recipe($ci, $recipe_id) {
     return $ci->recipe_model->get_recipe($recipe_id);
 }
 function fetch_from_db($ci, $user_preference) {
+	return [];
 	$dietary_restrictions = $ci->user_dietary_restrictions_model->get_user_dietary_restrictions($ci->user_id);
 	return $ci->recipe_model->get_recipe_based_on_preference($user_preference, $dietary_restrictions);
 }
 
-function process_response($ci, $user_preference, $post_data, $recipes): array {
+function process_response_from_db($ci, $user_preference, $post_data, $recipes): array {
 	if (!isset($recipes['results'])) {
 		return [];
 	}
@@ -61,6 +61,54 @@ function process_response($ci, $user_preference, $post_data, $recipes): array {
 	}
 	return array_values($data);
 }
+function process_response($ci, $user_preference, $post_data, $recipes): array {
+	$data = [];
+	$index = 0;
+	foreach ($recipes as $recipe) {
+		if (!isset($recipe['title'])) {
+			continue;
+		}
+		$data[$index] = [
+			'title' => clean_text($recipe['title']),
+			'image_url' => upload_image($ci, $recipe['image_url'] ?? NULL),
+			'ingredients' => clean_text(get_instructions($recipe['ingredients'] ?? NULL)),
+			'carbs' => clean_text($recipe['carbs'] ?? NULL),
+			'proteins' => clean_text($recipe['proteins'] ?? NULL),
+			'fats' => clean_text($recipe['fats'] ?? NULL),
+			'servings' => clean_text($recipe['servings'] ?? NULL),
+			'cuisine' => clean_text($recipe['cuisine'] ?? NULL),
+			'spice' => clean_text($recipe['spice'] ?? NULL),
+			'meal_type' => clean_text($recipe['meal_type'] ?? NULL),
+			'instructions' => clean_text(get_instructions($recipe['instructions'] ?? NULL)),
+			'cooking_time' => $recipe['cooking_time'] ?? NULL,
+			'cooking_style' => $recipe['cooking_style'] ?? NULL,
+			'cleaned_ingredients' => $recipe['cleaned_ingredients'] ?? NULL,
+		];
+		$recipe = add_recipe($ci, $data[$index], $post_data, $user_preference);
+		$data[$index]['recipe_id'] = (int)$recipe;
+		unset($data[$index]['instructions']);
+		unset($data[$index]['cleaned_ingredients']);
+		$index++;
+	}
+	return array_values($data);
+}
+
+function clean_text($text) {
+	if ($text) {
+		$text = str_replace('-', ' ', $text);
+		$text = trim($text);
+		return $text;
+	}
+	return $text;
+}
+
+function get_instructions($instructions) {
+	if (is_array($instructions)) {
+		return implode('<br>', $instructions);
+	} else {
+		return $instructions;
+	}
+}
 
 function add_recipe($ci, $recipe, $post_data, $user_preference) {
 	$recipe['category'] = $user_preference['category_id'] ?? NULL;
@@ -82,7 +130,7 @@ function add_recipe($ci, $recipe, $post_data, $user_preference) {
 	return $recipe_id;
 }
 function upload_image($ci, $image_url) {
-	return 'sa';
+	return $image_url;
 	$ci->load->helper('url');
 	$ci->load->helper('file');
 	$upload_path = './uploads/';
@@ -159,142 +207,27 @@ function add_br_tags($input): string {
 }
 
 function get_response($post_data) {
-	$response = [];
-	$response['results']  = [
-		[
-			"title" => "Baked Chicken Curry",
-			"image_url" => "https://example.com/images/baked_chicken_curry.jpg",
-			"ingredients" => "500g Chicken Curry cuts, 2 tablespoons curry powder, 1 cup yogurt, 1 onion (chopped), 2 tomatoes (chopped), 2 tablespoons cooking oil, salt to taste, fresh cilantro for garnish",
-			"carbs" => "244g",
-			"protein" => "344g",
-			"fats" => "344g",
-			"taste" => "Spicy and savory with a hint of tanginess",
-			"cuisine" => "Indian",
-			"spice" => "Medium",
-			"meal_type" => "Dinner",
-			"instructions" => "1. Preheat the oven to 200°C (392°F). 2. In a bowl, mix the chicken with yogurt, curry powder, chopped onion, tomatoes, and salt. 3. Marinate for at least 5 minutes. 4. Place the marinated chicken in a baking dish, drizzle with oil, and bake for 10 minutes or until fully cooked. 5. Garnish with fresh cilantro before serving."
-		],
-		[
-			"title" => "Vegetable Stir-Fry",
-			"image_url" => "https://example.com/images/vegetable_stir_fry.jpg",
-			"ingredients" => "1 cup bell peppers, 1 cup broccoli, 1 cup carrots, 2 tablespoons soy sauce, 1 tablespoon sesame oil, garlic to taste",
-			"carbs" => "100g",
-			"protein" => "15g",
-			"fats" => "10g",
-			"taste" => "Fresh and crunchy with a hint of umami",
-			"cuisine" => "Chinese",
-			"spice" => "Low",
-			"meal_type" => "Lunch",
-			"instructions" => "1. Heat sesame oil in a pan. 2. Add garlic and sauté for 1 minute. 3. Add vegetables and stir-fry for 5-7 minutes. 4. Add soy sauce and cook for another 2 minutes."
-		],
-		[
-			"title" => "Spaghetti Aglio e Olio",
-			"image_url" => "https://example.com/images/spaghetti_aglio_e_olio.jpg",
-			"ingredients" => "200g spaghetti, 4 cloves garlic (sliced), 1/2 cup olive oil, red pepper flakes, parsley for garnish",
-			"carbs" => "120g",
-			"protein" => "10g",
-			"fats" => "40g",
-			"taste" => "Garlicky and mildly spicy",
-			"cuisine" => "Italian",
-			"spice" => "Medium",
-			"meal_type" => "Dinner",
-			"instructions" => "1. Cook spaghetti as per package instructions. 2. In a pan, heat olive oil and sauté garlic until golden. 3. Add red pepper flakes. 4. Toss spaghetti with the oil mixture and garnish with parsley."
-		],
-		[
-			"title" => "Caprese Salad",
-			"image_url" => "https://example.com/images/caprese_salad.jpg",
-			"ingredients" => "2 large tomatoes, 1 ball of mozzarella, fresh basil leaves, balsamic vinegar, olive oil, salt",
-			"carbs" => "15g",
-			"protein" => "20g",
-			"fats" => "25g",
-			"taste" => "Fresh and tangy",
-			"cuisine" => "Italian",
-			"spice" => "None",
-			"meal_type" => "Appetizer",
-			"instructions" => "1. Slice tomatoes and mozzarella. 2. Layer them with basil leaves. 3. Drizzle with olive oil and balsamic vinegar. 4. Sprinkle with salt before serving."
-		],
-		[
-			"title" => "Chicken Tacos",
-			"image_url" => "https://example.com/images/chicken_tacos.jpg",
-			"ingredients" => "300g shredded chicken, taco shells, 1 cup lettuce, 1 cup diced tomatoes, cheese, salsa",
-			"carbs" => "80g",
-			"protein" => "50g",
-			"fats" => "20g",
-			"taste" => "Savory with a kick of freshness",
-			"cuisine" => "Mexican",
-			"spice" => "Medium",
-			"meal_type" => "Dinner",
-			"instructions" => "1. Fill taco shells with shredded chicken. 2. Top with lettuce, tomatoes, cheese, and salsa. 3. Serve immediately."
-		],
-		[
-			"title" => "Beef Stir-Fry",
-			"image_url" => "https://example.com/images/beef_stir_fry.jpg",
-			"ingredients" => "250g beef strips, 1 cup mixed vegetables, 2 tablespoons soy sauce, 1 tablespoon ginger, garlic to taste",
-			"carbs" => "40g",
-			"protein" => "60g",
-			"fats" => "25g",
-			"taste" => "Savory with a hint of sweetness",
-			"cuisine" => "Asian",
-			"spice" => "Medium",
-			"meal_type" => "Dinner",
-			"instructions" => "1. Heat oil in a pan. 2. Add ginger and garlic, sauté until fragrant. 3. Add beef and cook until browned. 4. Add vegetables and soy sauce, stir-fry until cooked."
-		],
-		[
-			"title" => "Lentil Soup",
-			"image_url" => "https://example.com/images/lentil_soup.jpg",
-			"ingredients" => "1 cup lentils, 1 onion (chopped), 2 carrots (diced), 4 cups vegetable broth, spices to taste",
-			"carbs" => "50g",
-			"protein" => "20g",
-			"fats" => "5g",
-			"taste" => "Hearty and comforting",
-			"cuisine" => "Middle Eastern",
-			"spice" => "Medium",
-			"meal_type" => "Lunch",
-			"instructions" => "1. In a pot, sauté onion and carrots. 2. Add lentils and broth. 3. Bring to a boil, then simmer until lentils are tender. 4. Season with spices."
-		],
-		[
-			"title" => "Pancakes",
-			"image_url" => "https://example.com/images/pancakes.jpg",
-			"ingredients" => "1 cup flour, 1 tablespoon sugar, 1 teaspoon baking powder, 1 cup milk, 1 egg, butter for cooking",
-			"carbs" => "60g",
-			"protein" => "10g",
-			"fats" => "20g",
-			"taste" => "Fluffy and sweet",
-			"cuisine" => "American",
-			"spice" => "None",
-			"meal_type" => "Breakfast",
-			"instructions" => "1. Mix dry ingredients. 2. Whisk in milk and egg. 3. Heat a pan, add butter, and pour batter. 4. Cook until bubbles form, then flip."
-		],
-		[
-			"title" => "Mushroom Risotto",
-			"image_url" => "https://example.com/images/mushroom_risotto.jpg",
-			"ingredients" => "1 cup Arborio rice, 2 cups vegetable broth, 1 cup mushrooms (sliced), 1 onion (chopped), Parmesan cheese",
-			"carbs" => "70g",
-			"protein" => "15g",
-			"fats" => "10g",
-			"taste" => "Creamy and earthy",
-			"cuisine" => "Italian",
-			"spice" => "Low",
-			"meal_type" => "Dinner",
-			"instructions" => "1. Sauté onion and mushrooms. 2. Add rice and stir. 3. Gradually add broth, stirring continuously until creamy. 4. Stir in Parmesan before serving."
-		],
-		[
-			"title" => "Greek Salad",
-			"image_url" => "https://example.com/images/greek_salad.jpg",
-			"ingredients" => "1 cucumber, 2 tomatoes, 1 bell pepper, 100g feta cheese, olives, olive oil, oregano",
-			"carbs" => "20g",
-			"protein" => "10g",
-			"fats" => "15g",
-			"taste" => "Fresh and tangy",
-			"cuisine" => "Greek",
-			"spice" => "None",
-			"meal_type" => "Appetizer",
-			"instructions" => "1. Chop all vegetables and mix in a bowl. 2. Crumble feta on top. 3. Drizzle with olive oil and sprinkle with oregano."
-		]
-	];
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, "http://13.200.223.248:5000/generate");
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+		"Content-Type: application/json",
+	]);
+	$jsonData = json_encode($post_data);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+	$response = curl_exec($ch);
 
-	return ($response);
-	$url = "https://example.com/api/endpoint";
+	if (curl_errno($ch)) {
+		return [];
+	} else {
+		return json_decode($response, true);
+	}
+
+// Close the cURL session
+	curl_close($ch);
+
+	$url = "http://13.200.223.248:5000/generate";
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
