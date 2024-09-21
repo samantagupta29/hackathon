@@ -12,7 +12,7 @@ function fetch_recipes($ci) {
 	$response_from_db = fetch_from_db($ci, $user_preference);
 //	$response_from_db =  process_response_from_db($ci, $user_preference, $post_data, $response_from_db);
 	$response_from_ai = [];
-	$post_data['count_of_recipes_to_fetch'] = 2;
+	$post_data['count_of_recipes_to_fetch'] = 1;
 	$response_from_ai = get_response($post_data);
 	$response_from_ai['results'] =  process_response($ci, $user_preference, $post_data, $response_from_ai);
 
@@ -86,7 +86,6 @@ function process_response($ci, $user_preference, $post_data, $recipes): array {
 		];
 		$recipe = add_recipe($ci, $data[$index], $post_data, $user_preference);
 		$data[$index]['recipe_id'] = (int)$recipe;
-		unset($data[$index]['instructions']);
 		unset($data[$index]['cleaned_ingredients']);
 		$index++;
 	}
