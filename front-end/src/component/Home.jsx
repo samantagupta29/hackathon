@@ -23,7 +23,7 @@ function Home() {
       {/* Conditionally render the FilterPanel */}
       {isFilterOpen && <FilterPanel />}
 
-      <div className='mt-4'>Home
+      <div className='mt-4'>
 
         {/* Button to open the filter panel */}
         {/* <button 
