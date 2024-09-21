@@ -12,11 +12,10 @@ function fetch_recipes($ci) {
 	$response_from_db = fetch_from_db($ci, $user_preference);
 //	$response_from_db =  process_response_from_db($ci, $user_preference, $post_data, $response_from_db);
 	$response_from_ai = [];
-	if (count($response_from_db) < 10) {
-		$post_data['count_of_recipes_to_fetch'] = 10 - count($response_from_db);
-		$response_from_ai = get_response($post_data);
-		$response_from_ai['results'] =  process_response($ci, $user_preference, $post_data, $response_from_ai);
-	}
+	$post_data['count_of_recipes_to_fetch'] = 2;
+	$response_from_ai = get_response($post_data);
+	$response_from_ai['results'] =  process_response($ci, $user_preference, $post_data, $response_from_ai);
+
 	return array_merge($response_from_db, $response_from_ai['results'] ?? []);
 }
 
