@@ -1,4 +1,5 @@
 import os
+import re
 from openai import OpenAI
 from flask import Flask, request, jsonify
 from constants import (
@@ -46,17 +47,19 @@ def generate_image(description):
 
 
 def generate_recipe_prompt(data):
-    prompt_parts = [f"I have {data['hero_ingredient']}."]
+    prompt_parts = [f"Create a unique recipe using {data['hero_ingredient']}."]
 
     if "cooking_style" in data:
         prompt_parts.append(f"with {data['cooking_style']} cooking style")
 
     if "spice_tolerance" in data:
-        prompt_parts.append(f"and spice tolerance of {data['spice_tolerance']}")
+        prompt_parts.append(f"and a spice tolerance of {data['spice_tolerance']}")
 
     if "nutrients" in data:
         prompt_parts.append(
-            f"containing {data['nutrients']['carbs']} carbs, {data['nutrients']['proteins']} proteins, and {data['nutrients']['fats']} fats"
+            f"containing {data['nutrients']['carbs']} of carbs, "
+            f"{data['nutrients']['proteins']} of proteins, and "
+            f"{data['nutrients']['fats']} of fats"
         )
 
     if "cuisine" in data:
@@ -65,9 +68,18 @@ def generate_recipe_prompt(data):
     if "servings" in data:
         prompt_parts.append(f"for {data['servings']} servings")
 
-    prompt_parts.append(f"in less than {data['cooking_time']}")
+    if "location" in data:
+        prompt_parts.append(f"located in {data['location']}")
 
-    prompt = " ".join(prompt_parts) + ". Suggest me a recipe."
+    if "cooking_time" in data:
+        prompt_parts.append(f"that can be prepared in {data['cooking_time']}.")
+
+    prompt_parts.append(
+        "Please include taste from the categories: 'Sweet', 'Sour', 'Salty', 'Bitter', "
+        "and texture from the categories: 'Soft', 'Crunchy', 'Creamy', 'Chewy', 'Smooth'."
+    )
+
+    prompt = " ".join(prompt_parts)
 
     return prompt
 
@@ -115,41 +127,57 @@ def generate():
 
 
 def categorize_taste(recipe):
-    if "sweet" in recipe.lower():
-        return "Sweet"
-    elif "sour" in recipe.lower():
-        return "Sour"
-    elif "salty" in recipe.lower():
-        return "Salty"
-    else:
-        return "Bitter"
+    if "taste" in recipe:
+        taste = recipe["taste"].lower()
+        if "sweet" in taste:
+            return "Sweet"
+        elif "sour" in taste:
+            return "Sour"
+        elif "salty" in taste:
+            return "Salty"
+    return "Bitter"
 
 
 def categorize_texture(recipe):
-    if "crunchy" in recipe.lower():
-        return "Crunchy"
-    elif "soft" in recipe.lower():
-        return "Soft"
-    elif "creamy" in recipe.lower():
-        return "Creamy"
-    else:
-        return "Chewy"
+    if "texture" in recipe:
+        texture = recipe["texture"].lower()
+        if "crunchy" in texture:
+            return "Crunchy"
+        elif "soft" in texture:
+            return "Soft"
+        elif "creamy" in texture:
+            return "Creamy"
+    return "Chewy"
 
 
 def extract_recipe_title(recipe):
-    return recipe.split("\n")[0]
+    match = re.search(r"^(.+?)(?=\n)", recipe, re.MULTILINE)
+    return match.group(0).strip() if match else "Recipe"
 
 
 def extract_ingredients(recipe):
-    return "List of ingredients from the recipe"
+    ingredients_section = re.search(
+        r"Ingredients:\s*(.+?)(?=\n\n|Instructions:)", recipe, re.DOTALL
+    )
+    return (
+        ingredients_section.group(1).strip().split("\n") if ingredients_section else []
+    )
 
 
 def extract_instructions(recipe):
-    return "List of instructions from the recipe"
+    instructions_section = re.search(r"Instructions:\s*(.+)", recipe, re.DOTALL)
+    return (
+        instructions_section.group(1).strip()
+        if instructions_section
+        else "Instructions not found."
+    )
 
 
 def extract_cooking_time(recipe):
-    return 10
+    match = re.search(r"(\d+)\s*minutes", recipe)
+    if match:
+        return int(match.group(1))
+    return 0
 
 
 if __name__ == "__main__":
