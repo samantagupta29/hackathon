@@ -25,7 +25,7 @@ const FilterPanel = () => {
 
   const handleLoading = async () => {
     try {
-      const response = await axios.post('/user_preferences/apply_filters_and_get_recipes');
+      const response = await axios.post('http://13.200.223.248/user_preferences/apply_filters_and_get_recipes');
       // const response2 = await axios.get('/user_preferences/get_filters/apply_filters_and_get_recipes', payload);
       setRecipes(response.data.recipes)
       console.log('Success: default recipes are loaded', response.data);
@@ -79,7 +79,7 @@ const FilterPanel = () => {
 
     try {
       // const response = await axios.get('/api/user_preferences/apply_filters_and_get_recipes', payload);
-       const response = await axios.post('/user_preferences/apply_filters_and_get_recipes', payload);
+       const response = await axios.post('http://13.200.223.248/user_preferences/apply_filters_and_get_recipes', payload);
       setRecipes(response.data.recipes)
       console.log('Success:', response.data);
       // Handle successful response (e.g., reset filters, show a success message)
